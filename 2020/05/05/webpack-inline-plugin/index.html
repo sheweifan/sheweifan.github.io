@@ -229,8 +229,8 @@
       const hooks = this.htmlWebpackPlugin.getHooks(compilation);
       hooks.alterAssetTagGroups.tap(&quot;InlineChunkHtmlPlugin&quot;, (assets) =&gt; {
         // 对以下两个资源进行处理后替换即可
-        assets.headTags // 将会被插入到头部到资源
-        assets.bodyTags // 将会被插入到头部到资源
+        assets.headTags // 将会被插入到头部的资源
+        assets.bodyTags // 将会被插入到头部的资源
 
         // 对传入对js css静态资源处理
         for (let i = 0; i &lt; js.length; i++) {
