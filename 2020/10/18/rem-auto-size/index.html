@@ -183,7 +183,7 @@
     <div class="post-content">
       
         <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>日常查看反馈日志发现部分安卓用户反馈界面ui错乱，截图显示字体明显大于常规，各个元素都变大了，有些元素撑出了屏幕外面。<br>因此猜测是由于系统/浏览器字体大小被缩放导致。<br><!-- <img src="/img/rem-auto-size-feedback.png" style="max-width: 300px" /> --></p>
-<h1 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h1><p>如果插入一个宽度10rem(屏幕宽度的100%)的div作为依据，如果rem计算正确，这个div的宽度应该和屏幕宽度一致。<br><a id="more"></a><br>为了防止重新计算的数值依然有误，索性做了定时器检查，如果8秒后依然错误就放弃重新计算。</p>
+<h1 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h1><p>插入一个宽度10rem(屏幕宽度的100%)的div作为依据，如果rem计算正确，这个div的宽度应该和屏幕宽度一致。<br><a id="more"></a><br>为了防止重新计算的数值依然有误，索性做了定时器检查，如果8秒后依然错误就放弃重新计算。</p>
 <h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><pre><code>var u = navigator.userAgent
 var isAndroid = u.indexOf(&apos;Android&apos;) &gt; -1 || u.indexOf(&apos;Adr&apos;) &gt; -1
 // 只有安卓用户反馈，缩小范围降低风险
