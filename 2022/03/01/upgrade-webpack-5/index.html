@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="webpack1 升级到 webpack5"><link rel="alternate" href="/atom.xml" title="佘炜帆">
+<link rel="canonical" href="https://sheweifan.github.io/2022/03/01/upgrade-webpack-5/">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=">
+
+<script>
+  window.config = {"leancloud":"","toc":"","fancybox":"","pjax":"","latex":""};
+</script>
+
+    <title>webpack1 升级到 webpack5 - 佘炜帆</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">佘炜帆</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">佘炜帆</a>
+</div>
+
+<nav class="site-navbar"></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">webpack1 升级到 webpack5
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2022-03-01
+        </span></div>
+    </header>
+
+    <div class="post-content"><h1 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h1><p>一个五年持续迭代但是构建没有升级过的项目，页面多达265个。用vue-cli1开出来的项目，基于webpack1，新增插件基本无法兼容。构建速度持续递增。</p>
+<h1 id="优化结果"><a href="#优化结果" class="headerlink" title="优化结果"></a>优化结果</h1><p>时间统计于统一配置下的容器内打包</p>
+<p>|  |首次|第二次无修改|第二次路由页面修改|<br>|—-|—-|—-|<br>|webpack1|6 分 7 秒|4 分 0 秒|3 分 56 秒|<br>|webpack5|1 分 57 秒|13 秒| 57 秒|</p>
+<span id="more"></span>
+
+<h1 id="升级过程"><a href="#升级过程" class="headerlink" title="升级过程"></a>升级过程</h1><p>待完善，先记录遇到的问题</p>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><h2 id="hot-reload-无效"><a href="#hot-reload-无效" class="headerlink" title="hot reload 无效"></a>hot reload 无效</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// webpack.config.js</span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  target:web,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="设置-target-web-后，-dev-server-启动后浏览器报错-arguments-is-not-defined"><a href="#设置-target-web-后，-dev-server-启动后浏览器报错-arguments-is-not-defined" class="headerlink" title="设置 target:web 后， dev server 启动后浏览器报错 arguments is not defined"></a>设置 target:web 后， dev server 启动后浏览器报错 arguments is not defined</h2><p>检查相关代码是否在箭头函数里使用了 arguments，改过来即可</p>
+<hr>
+<h2 id="export-‘default’-exported-as-‘default’-was-not-found-in-‘-x2F-x2F-x2F-x2F-node-modules-x2F-mini-css-extract-plugin-x2F-dist-x2F-loader-js-x2F"><a href="#export-‘default’-exported-as-‘default’-was-not-found-in-‘-x2F-x2F-x2F-x2F-node-modules-x2F-mini-css-extract-plugin-x2F-dist-x2F-loader-js-x2F" class="headerlink" title="export ‘default’ (exported as ‘default’) was not found in ‘-!..&#x2F;..&#x2F;..&#x2F;..&#x2F;node_modules&#x2F;mini-css-extract-plugin&#x2F;dist&#x2F;loader.js!..&#x2F;.."></a>export ‘default’ (exported as ‘default’) was not found in ‘-!..&#x2F;..&#x2F;..&#x2F;..&#x2F;node_modules&#x2F;mini-css-extract-plugin&#x2F;dist&#x2F;loader.js!..&#x2F;..</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// webpack.config.js</span><br><span class="line">&#123;</span><br><span class="line">  loader: MiniCssExtractPlugin.loader,</span><br><span class="line">  options: &#123;</span><br><span class="line">    esModule: false,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>参考：<a href="https://github.com/vuejs/vue-loader/issues/1742#issuecomment-715882675">https://github.com/vuejs/vue-loader/issues/1742#issuecomment-715882675</a></p>
+<hr>
+<h2 id="exports-is-not-defined"><a href="#exports-is-not-defined" class="headerlink" title="exports is not defined"></a>exports is not defined</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// commonjs esmodule 混打？</span><br><span class="line">// babel.config.js</span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  plugins: [</span><br><span class="line">    ...</span><br><span class="line">    &#x27;@babel/plugin-transform-modules-commonjs&#x27;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line">// 尽管加了插件，仍不支持一个文件混用两种导出模块的方式</span><br></pre></td></tr></table></figure>
+<p>参考：<a href="https://www.npmjs.com/package/@babel/plugin-transform-modules-commonjs">https://www.npmjs.com/package/@babel/plugin-transform-modules-commonjs</a></p>
+<hr>
+<h2 id="Module-not-found-Error-Can’t-resolve-‘timers’-in-xxxxx"><a href="#Module-not-found-Error-Can’t-resolve-‘timers’-in-xxxxx" class="headerlink" title="Module not found: Error: Can’t resolve ‘timers’ in xxxxx"></a>Module not found: Error: Can’t resolve ‘timers’ in xxxxx</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// yarn add timers-browserify</span><br><span class="line">// webpack.config.js</span><br><span class="line">resolve: &#123;</span><br><span class="line">  ...</span><br><span class="line">  fallback: &#123;</span><br><span class="line">    timers: require.resolve(&#x27;timers-browserify&#x27;),</span><br><span class="line">    fs: false</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>参考：<a href="https://www.npmjs.com/package/timers-browserify">https://www.npmjs.com/package/timers-browserify</a></p>
+<hr>
+<h2 id="设置port-80之后，macOS下仍然跑1024端口"><a href="#设置port-80之后，macOS下仍然跑1024端口" class="headerlink" title="设置port 80之后，macOS下仍然跑1024端口"></a>设置port 80之后，macOS下仍然跑1024端口</h2><p>mac下需要加sudo才可以跑1024以下的端口，加上sudo命令即可</p>
+<hr>
+<h2 id="host-x2F-charles-代理之后-dev-hot-reload-失效"><a href="#host-x2F-charles-代理之后-dev-hot-reload-失效" class="headerlink" title="host&#x2F;charles 代理之后 dev hot reload 失效"></a>host&#x2F;charles 代理之后 dev hot reload 失效</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// webpack dev server</span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  devServer: &#123;</span><br><span class="line">    ...</span><br><span class="line">    disableHostCheck: true,</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="esmodule-x2F-commonjs-混打，-vant-重复打包"><a href="#esmodule-x2F-commonjs-混打，-vant-重复打包" class="headerlink" title="esmodule&#x2F;commonjs 混打， vant 重复打包"></a>esmodule&#x2F;commonjs 混打， vant 重复打包</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">// babel.config.js</span><br><span class="line"></span><br><span class="line">// 调整插件位置</span><br><span class="line">&#123;</span><br><span class="line">  plugins: [</span><br><span class="line">    &#x27;@babel/plugin-transform-modules-commonjs&#x27;,</span><br><span class="line">    &#x27;@babel/plugin-transform-runtime&#x27;,</span><br><span class="line">    [</span><br><span class="line">      &#x27;import&#x27;,</span><br><span class="line">      &#123;</span><br><span class="line">        libraryName: &#x27;vant&#x27;,</span><br><span class="line">        style: true</span><br><span class="line">      &#125;,</span><br><span class="line">      &#x27;vant&#x27;</span><br><span class="line">    ]</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 修改为</span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  plugins: [</span><br><span class="line">    [</span><br><span class="line">      &#x27;import&#x27;,</span><br><span class="line">      &#123;</span><br><span class="line">        libraryName: &#x27;vant&#x27;,</span><br><span class="line">        style: true</span><br><span class="line">      &#125;,</span><br><span class="line">      &#x27;vant&#x27;</span><br><span class="line">    ],</span><br><span class="line">    &#x27;@babel/plugin-transform-modules-commonjs&#x27;,</span><br><span class="line">    &#x27;@babel/plugin-transform-runtime&#x27;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="热更新失败"><a href="#热更新失败" class="headerlink" title="热更新失败"></a>热更新失败</h2><h2 id="删除devServer-watchfiles"><a href="#删除devServer-watchfiles" class="headerlink" title="删除devServer.watchfiles"></a>删除devServer.watchfiles</h2>
+      </div>
+      
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2022/12/07/mp-catch-goback/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">微信小程序如何捕获返回</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2020/11/07/mp/">
+        <span class="next-text nav-default">用webview快速构建小程序</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2023<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">佘炜帆</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v="></script>
+</body>
+</html>

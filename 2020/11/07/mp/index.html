@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="用webview快速构建小程序"><link rel="alternate" href="/atom.xml" title="佘炜帆">
+<link rel="canonical" href="https://sheweifan.github.io/2020/11/07/mp/">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=">
+
+<script>
+  window.config = {"leancloud":"","toc":"","fancybox":"","pjax":"","latex":""};
+</script>
+
+    <title>用webview快速构建小程序 - 佘炜帆</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">佘炜帆</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">佘炜帆</a>
+</div>
+
+<nav class="site-navbar"></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">用webview快速构建小程序
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-11-07
+        </span></div>
+    </header>
+
+    <div class="post-content"><h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>一开始产品找我的时候，说需求很简单，「要把常规业务的完整流程搬上小程序」，我第一时间想到的是套webview，实现一个原生小程序只是时间问题，我担心的是后续版本都需要改两套代码。这不是我的风格。加上所在业务本身就运行在多端，微信&#x2F;浏览器&#x2F;APPx3，本身bridge底子好，所以如果能实现一套类似native app的小程序壳，业务兼容小程序并不是很难。而且我对这个小程序业务上有更多的展望，后面会说到。</p>
+<span id="more"></span>
+
+<h1 id="webview对比原生实现"><a href="#webview对比原生实现" class="headerlink" title="webview对比原生实现"></a>webview对比原生实现</h1><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原生</td>
+<td>体验好</td>
+<td>成本高，灵活度低，多套代码</td>
+</tr>
+<tr>
+<td>多端编译</td>
+<td>一套代码</td>
+<td>成本高，平台判断困难</td>
+</tr>
+<tr>
+<td>webview</td>
+<td>灵活，后期维护成本低</td>
+<td>体验较差</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>原生实现并不是说用小程序原生代码，可能基于uni-app、taro来实现，所有组件都用小程序原生组件实现，这种方案体验好，但是成本高，后期维护成本双倍。</p>
+</li>
+<li><p>多端编译的意思是基于uni-app、taro来实现一套代码，编译成多平台代码，这种方案体验接近原生，但是因为是一套代码兼容多端，可能API兼容起来比较繁琐，可能兼容多平台小程序还好，但跨越web和小程序的平台差异化处理多了的话其实代码也是比较丑陋，难以维护的。</p>
+</li>
+<li><p>基于webview来实现就是说所有业务流程都用load远程web代码来实现，这种方案因为需要加载完整的静态资源，所以体验上会比前两种实现差一些，毕竟代码在远端，但是目前web实现能很好的减少这种体验差距，后面会提到。</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>原生</th>
+<th>webview</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>首屏</td>
+<td>快</td>
+<td>慢</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>？</td>
+<td>？</td>
+</tr>
+<tr>
+<td>原生能力</td>
+<td>好</td>
+<td>差</td>
+</tr>
+<tr>
+<td>灵活度</td>
+<td>低</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>先说首屏，首屏速度的话，小程序有天生优势，静态资源本身就是缓存好的，完成一个页面渲染只需要接口请求的时间，这是原生小程序的天然优势。巧的是，业务完成了除了订单模块以外的所有页面SSR化，可以比较好的缩短这个差距。</p>
+</li>
+<li><p>性能上我打了个问号，在某些情况下，小程序确实性能比web好，但是我在很多场景下发现，小程序状态同步到view上的性能很差，比如实现一个sticky的navbar，或者是长列表，复杂页面的渲染，可能在几个tick才完成渲染，如果在这个tick时间里，我再次修改了状态，这个时候渲染速度跟不上，其实状态与页面已经脱钩了。</p>
+</li>
+<li><p>原生能力这个不用说，webview调用小程序方法，可能需要通过开关页面或者是重新加载页面，使webview的onlad时间触发来做到，甚至因为平台限制，有些方法还需要新开一个原生页面，显示原生按钮来实现，所以webview的原生能力比较差。</p>
+</li>
+<li><p>灵活度上，web可以通过服务器文件来随时更新功能和做一些bugfix，而小程序则需要发包，发包差量就要要求接口兼容等问题，所以web灵活度占优。</p>
+</li>
+</ul>
+<h1 id="如何做多端兼容"><a href="#如何做多端兼容" class="headerlink" title="如何做多端兼容"></a>如何做多端兼容</h1><h2 id="一套代码多端兼容"><a href="#一套代码多端兼容" class="headerlink" title="一套代码多端兼容"></a>一套代码多端兼容</h2><p>多个APP，小程序，微信，普通浏览器，PC</p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><img src="/img/mp.001.png">
+
+<h1 id="小程序方法处理"><a href="#小程序方法处理" class="headerlink" title="小程序方法处理"></a>小程序方法处理</h1><p>小程序在配合web方法上可能有点奇技淫巧，好在调通公共部分之后，基本不需要改动，所以是可以接受的。</p>
+<p>初始化是上，做两件事情，一是产出一个供h5调用的native对象，二是需要检测当前所处的环境，然后根据环境去异步加载sdk文件，这里的关键点是我们要做个等待sdk loading，实现起来也比较简单，维护一个loadPromise，每次调用sdk前都检测一下环境是否ready即可。也可以在在在调用的时候，判断sdk是否ready，如果没有则把任务放进队列中，等ready后遍历执行</p>
+<h2 id="跳转"><a href="#跳转" class="headerlink" title="跳转"></a>跳转</h2><p>实现了一个类似native的打开关闭webview的模型，并且同步了native bridge的参数，支持新开页面，关闭页面，在当前页面跳转。基于uni.navigateTo&#x2F;redirectTo&#x2F;navigateBack实现。</p>
+<h2 id="刷新webview"><a href="#刷新webview" class="headerlink" title="刷新webview"></a>刷新webview</h2><p>方式一，关闭页面并刷新:<br>在全局store那里定义一个refreshKey，webview向小程序postMessage事件，小程序端监听refreshKey变化，改变url达到刷新的目的。<br>web postMessage -&gt; watch store.state.refreshKey -&gt; 设置webview src 为空 -&gt; 拼接新的url -&gt; 延迟更新 webview src -&gt; webview 刷新<br>可能你会觉得奇怪，为什么需要这步置空？如果不置空的话，iOS左侧边缘滑动返回&#x2F;安卓返回键会原地退回到刷新前的页面</p>
+<p>方式二，原地刷新:<br>原地刷新原本是可以通过<code>location.reload</code>来实现，但这样刷新只能刷新到当前页面，如果需要同时刷新多页的话，可以通过<code>location.replace</code>添加约定好的参数，小程序webview通过onload回调来做对应处理。<br>web location.replace -&gt; reload -&gt; webview onload trigger -&gt; upgrade refreshKey -&gt; reload all webview </p>
+<h2 id="登陆"><a href="#登陆" class="headerlink" title="登陆"></a>登陆</h2><p>实现了授权手机号，因为业务基本上都是基于手机号来确定用户，所以并没有走<code>unionid</code>那一套，授权流程大概是这样的。因为需要小程序原生按钮来触发授权，所以只能通过打开新的原生页面来实现。</p>
+<p>webview调用<code>navigateTo</code>打开登录页 -&gt;<br>显示原生登陆按钮 <code>&lt;button open-type=&quot;getPhoneNumber&quot; /&gt;</code> -&gt;<br>获取加密参数<code>iv</code>、<code>encryptedData</code> -&gt;<br>打开webview加载专门用于解析的页面 -&gt;<br>把链接参数取下并传递接口 -&gt;<br>接口调用微信接口解析后确定用户&#x2F;创建用户并写入cookie -&gt;<br>调用<code>postMessage refresh</code>刷新webview页面并关闭当前页面</p>
+<p>为什么没有使用类似token拼接在url上，webview把token传递接口来确定用户呢？是因为后端暂时没有支持token，且安全性较差。加上后续用户体系有其他迁移实现的规划，所以我们最终决定使用<code>setcookie</code>的方式过渡。</p>
+<h2 id="支付"><a href="#支付" class="headerlink" title="支付"></a>支付</h2><p>点击支付时，通过web调用<code>navigateTo</code>携带<code>requestPayment</code>所需参数到原生支付页，原生页加载后直接调用API发起支付。至于为什么把参数全都通过链接携带的方式而不是在带订单号去原生请求相关参数呢？是因为小程序将会包含各种业务，而不是单一业务，如果通过携带订单号和业务类型来实现，可能没接入一个新的业务，小程序原生端都需要发版来支持，web就需要针对小程序版本做区分处理。所以携带支持参数，让支付页功能脱离业务性价比较高。</p>
+<h1 id="展望"><a href="#展望" class="headerlink" title="展望"></a>展望</h1><p>未来微信下可以引导用户前往小程序体验，相比web体验会好一些。后续也在跟业务沟通，把只能在native实现的功能搬到小程序实现。</p>
+
+      </div>
+      
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2022/03/01/upgrade-webpack-5/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">webpack1 升级到 webpack5</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2020/05/05/webpack-inline-plugin/">
+        <span class="next-text nav-default">webpack 文件内联</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2023<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">佘炜帆</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v="></script>
+</body>
+</html>

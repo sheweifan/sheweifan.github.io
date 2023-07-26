@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="小程序内嵌webview"><link rel="alternate" href="/atom.xml" title="佘炜帆">
+<link rel="canonical" href="https://sheweifan.github.io/2018/09/04/wechat-mp-webview/">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=">
+
+<script>
+  window.config = {"leancloud":"","toc":"","fancybox":"","pjax":"","latex":""};
+</script>
+
+    <title>小程序内嵌webview - 佘炜帆</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">佘炜帆</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">佘炜帆</a>
+</div>
+
+<nav class="site-navbar"></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">小程序内嵌webview
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-09-04
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="一，路由"><a href="#一，路由" class="headerlink" title="一，路由"></a>一，路由</h2><p>路由跳转这块，由于公司三端（客户端，移动端，小程序）需要兼容，原先的bridge针对客户端路由做协议跳转，和vue-router配合整理出了一些方法提供调用，所以我们拓展了bridge，加了小程序的路由层。实际业务应用上无需做太多的调整即可做到开关webview来维护路由。</p>
+<h2 id="二，原生交互"><a href="#二，原生交互" class="headerlink" title="二，原生交互"></a>二，原生交互</h2><p>实际使用postMessage效果并不符合期望，postMessage在小程序原生模块很难有即时的触发，这是一个坑点，调试了很久发现不是代码问题，而是没有等到“合适的时机”来触发接收来自webview的信息。由于业务使用比较少交互，目前业务只有需要小程序原生接入支付。</p>
+<span id="more"></span>
+
+<h2 id="三，调用支付"><a href="#三，调用支付" class="headerlink" title="三，调用支付"></a>三，调用支付</h2><h3 id="1-第二点提及postMessage的时效性问题，所以我们并没有使用psotMessage来做桥调用小程序支付。而是使用了一个空白页，类似客户端会openWebview的时候把版本信息，用户验签等信息通过url-query的形式传给客户端，小程序借鉴了这个办法，通过url的形式打开一个小程序原生页面来通知小程序端。"><a href="#1-第二点提及postMessage的时效性问题，所以我们并没有使用psotMessage来做桥调用小程序支付。而是使用了一个空白页，类似客户端会openWebview的时候把版本信息，用户验签等信息通过url-query的形式传给客户端，小程序借鉴了这个办法，通过url的形式打开一个小程序原生页面来通知小程序端。" class="headerlink" title="1. 第二点提及postMessage的时效性问题，所以我们并没有使用psotMessage来做桥调用小程序支付。而是使用了一个空白页，类似客户端会openWebview的时候把版本信息，用户验签等信息通过url query的形式传给客户端，小程序借鉴了这个办法，通过url的形式打开一个小程序原生页面来通知小程序端。"></a>1. 第二点提及postMessage的时效性问题，所以我们并没有使用psotMessage来做桥调用小程序支付。而是使用了一个空白页，类似客户端会openWebview的时候把版本信息，用户验签等信息通过url query的形式传给客户端，小程序借鉴了这个办法，通过url的形式打开一个小程序原生页面来通知小程序端。</h3><h3 id="2-支付调用wx-requestPayment所需的参数（timeStamp，nonceStr，package，signType，paySign）需要接口，而后端去请求微信接口时需要openid。openid获取有两个渠道："><a href="#2-支付调用wx-requestPayment所需的参数（timeStamp，nonceStr，package，signType，paySign）需要接口，而后端去请求微信接口时需要openid。openid获取有两个渠道：" class="headerlink" title="2.支付调用wx.requestPayment所需的参数（timeStamp，nonceStr，package，signType，paySign）需要接口，而后端去请求微信接口时需要openid。openid获取有两个渠道："></a>2.支付调用wx.requestPayment所需的参数（timeStamp，nonceStr，package，signType，paySign）需要接口，而后端去请求微信接口时需要openid。openid获取有两个渠道：</h3><h4 id="一个是wx-login返回的code去换openid，静默获取。"><a href="#一个是wx-login返回的code去换openid，静默获取。" class="headerlink" title="一个是wx.login返回的code去换openid，静默获取。"></a>一个是wx.login返回的code去换openid，静默获取。</h4><h4 id="二是wx-getUserInfo（需-button-type-x3D-”getUserInfo”-做用户拒绝授权的情况下重新弹窗请求授权）返回的encryptedData解密后也有openid。需要用户同意，如果用户不同意，还需要在支付空白页或者其他地方添加按钮来再次获取授权。"><a href="#二是wx-getUserInfo（需-button-type-x3D-”getUserInfo”-做用户拒绝授权的情况下重新弹窗请求授权）返回的encryptedData解密后也有openid。需要用户同意，如果用户不同意，还需要在支付空白页或者其他地方添加按钮来再次获取授权。" class="headerlink" title="二是wx.getUserInfo（需 button type&#x3D;”getUserInfo” 做用户拒绝授权的情况下重新弹窗请求授权）返回的encryptedData解密后也有openid。需要用户同意，如果用户不同意，还需要在支付空白页或者其他地方添加按钮来再次获取授权。"></a>二是wx.getUserInfo（需 button type&#x3D;”getUserInfo” 做用户拒绝授权的情况下重新弹窗请求授权）返回的encryptedData解密后也有openid。需要用户同意，如果用户不同意，还需要在支付空白页或者其他地方添加按钮来再次获取授权。</h4><p>因为并无收集用户信息的需求，所以我们选了wx.login来获取openid的方式，之后就是怼接口返回调用requestPayment</p>
+<h2 id="四，操作webview"><a href="#四，操作webview" class="headerlink" title="四，操作webview"></a>四，操作webview</h2><p>我们用了一个专门用来开关webview的小程序原生组件来做容器，通过url上带过去的query作为状态推到状态并体现在webview的src上，传递的src需要做encodeURIComponent。打开和关闭webview都能轻松做到。js-sdk的wx.miniProgram上挂载的navigateTo，navigateBack等方法很方便的去操作。值得一提的是小程序全局对象上的getCurrentPages可以拿到当前所有的页面组件，并且可以直接setData来操作对应页面的状态。</p>
+
+      </div>
+      
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2019/02/07/vue-ssr/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">ssr-内部分享</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2023<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">佘炜帆</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v="></script>
+</body>
+</html>

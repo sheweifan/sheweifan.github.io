@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="azure openai如何做流式输出（打字效果）"><link rel="alternate" href="/atom.xml" title="佘炜帆">
+<link rel="canonical" href="https://sheweifan.github.io/2023/07/02/azure-openai-stream/">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=">
+
+<script>
+  window.config = {"leancloud":"","toc":"","fancybox":"","pjax":"","latex":""};
+</script>
+
+    <title>azure openai如何做流式输出（打字效果） - 佘炜帆</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">佘炜帆</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">佘炜帆</a>
+</div>
+
+<nav class="site-navbar"></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">azure openai如何做流式输出（打字效果）
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2023-07-02
+        </span></div>
+    </header>
+
+    <div class="post-content"><h1 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h1><p>openai和azure openai最大的区别就是不需要科学上网，且据azure openai代理商介绍，微软在国内已经完成了合规化备案，只要不上传用户数据，无需担心法律问题。</p>
+<h1 id="如何从openai-切换到-azure-openai"><a href="#如何从openai-切换到-azure-openai" class="headerlink" title="如何从openai 切换到 azure openai"></a>如何从openai 切换到 azure openai</h1><h2 id="调用方式不同（基于npm仓-openai-3-3-0）"><a href="#调用方式不同（基于npm仓-openai-3-3-0）" class="headerlink" title="调用方式不同（基于npm仓 openai@3.3.0）"></a>调用方式不同（基于npm仓 <a href="mailto:openai@3.3.0" target="_blank" rel="noopener">openai@3.3.0</a>）</h2><p>azure版本的api不再需要在调用时传入OPENAI_API_KEY，而是在请求中带在header里<br>basePath也需要根据新建的EndPoint（终结点）以及Studio中新建的model（模型）来决定，大致是${EndPoint}openai/deployments/${modelName}</p>
+<p>以axios为例<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; Configuration, OpenAIApi &#125; = <span class="built_in">require</span>(<span class="string">'openai'</span>)</span><br><span class="line"><span class="keyword">const</span> axios = <span class="built_in">require</span>(<span class="string">'axios'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> http = axios.create(&#123;</span><br><span class="line">  headers: &#123;</span><br><span class="line">    <span class="string">'api-key'</span>: process.env.OPENAI_API_KEY</span><br><span class="line">  &#125;,</span><br><span class="line">  params: &#123;</span><br><span class="line">    <span class="string">'api-version'</span>: <span class="string">'2023-05-15'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">const</span> OPENAI_BASE_PATH = <span class="string">`<span class="subst">$&#123;EndPoint&#125;</span>openai/deployments/<span class="subst">$&#123;modelName&#125;</span>`</span></span><br><span class="line"><span class="keyword">const</span> openai = <span class="keyword">new</span> OpenAIApi(<span class="literal">undefined</span>, OPENAI_BASE_PATH, http)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = openai</span><br></pre></td></tr></table></figure></p>
+<h2 id="stream流区别"><a href="#stream流区别" class="headerlink" title="stream流区别"></a>stream流区别</h2><p>由于azure的接口目前虽然支持stream的参数，但是返回的时候不想openai那样，而是卡顿一会，一次返回一大段，而且输出格式也很奇葩，流是中断的</p>
+<p><img src="/img/azure-openai-output.png" alt="Alt text"></p>
+<p>如图，返回的数据格式化后是数组，且JSON.parse报错，原因是数据最后一段数据可能需要下一个数组的第一段数据合并后才算完整的JSON string…</p>
+<p>解决办法，拼接流<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> handleStream = <span class="function">(<span class="params">completion, stream</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> cache = Buffer.from(<span class="string">''</span>)</span><br><span class="line">  <span class="keyword">let</span> preSend = <span class="string">''</span></span><br><span class="line">  completion.data.on(<span class="string">'data'</span>, data =&gt; &#123;</span><br><span class="line">    cache = Buffer.concat([cache, data])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> lines = cache</span><br><span class="line">      ?.toString()</span><br><span class="line">      ?.split(<span class="string">'\n'</span>)</span><br><span class="line">      .filter(<span class="function"><span class="params">line</span> =&gt;</span> line.trim() !== <span class="string">''</span>)</span><br><span class="line">    <span class="keyword">let</span> result = <span class="string">''</span></span><br><span class="line">    <span class="keyword">let</span> isEnd = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> line <span class="keyword">of</span> lines) &#123;</span><br><span class="line">      <span class="keyword">const</span> message = line</span><br><span class="line">        .toString()</span><br><span class="line">        .trim()</span><br><span class="line">        .replace(<span class="regexp">/^data: /</span>, <span class="string">''</span>)</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 流结束</span></span><br><span class="line">      <span class="keyword">if</span> (message === <span class="string">'[DONE]'</span>) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">'流结束'</span>)</span><br><span class="line">        <span class="comment">// stream.end()</span></span><br><span class="line">        isEnd = <span class="literal">true</span></span><br><span class="line">        <span class="comment">// return</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 解析数据</span></span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> parsed = <span class="built_in">JSON</span>.parse(message)</span><br><span class="line">        <span class="comment">// 打印有效内容</span></span><br><span class="line">        <span class="comment">// console.log('=&gt;', parsed.choices[0].delta)</span></span><br><span class="line">        <span class="keyword">if</span> (parsed.choices[<span class="number">0</span>].delta &amp;&amp; parsed.choices[<span class="number">0</span>].delta.content) &#123;</span><br><span class="line">          result += parsed.choices[<span class="number">0</span>].delta.content</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">`e`</span>, e)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    result &amp;&amp; stream.write(result.replace(preSend, <span class="string">''</span>))</span><br><span class="line">    isEnd &amp;&amp; stream.end()</span><br><span class="line"></span><br><span class="line">    preSend = result</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">handleStream(completion, stream)</span><br></pre></td></tr></table></figure></p>
+
+      </div>
+      
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="next" href="/2023/02/02/ssr-domain/">
+        <span class="next-text nav-default">SSR 如何做状态透传</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2023<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">佘炜帆</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v="></script>
+</body>
+</html>

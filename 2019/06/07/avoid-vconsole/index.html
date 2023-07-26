@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+<meta name="theme-color" content="#f8f5ec">
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="如何避免线上显示vconsole"><link rel="alternate" href="/atom.xml" title="佘炜帆">
+<link rel="canonical" href="https://sheweifan.github.io/2019/06/07/avoid-vconsole/">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=">
+
+<script>
+  window.config = {"leancloud":"","toc":"","fancybox":"","pjax":"","latex":""};
+</script>
+
+    <title>如何避免线上显示vconsole - 佘炜帆</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">佘炜帆</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">佘炜帆</a>
+</div>
+
+<nav class="site-navbar"></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">如何避免线上显示vconsole
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-06-07
+        </span></div>
+    </header>
+
+    <div class="post-content"><h1 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h1><p>在现在普遍前端工程化环境下，有时候会使用vconsole来作为移动端调试的工具，但在上线前忘记注释掉vconsole等原因，导致线上显示出vconsole的问题，在看到OA的第n个关于vconsole线上显示的事故报告之后，我觉得应该要有一种手段来自动化的做这样一件事。</p>
+<h1 id="改进构建"><a href="#改进构建" class="headerlink" title="改进构建"></a>改进构建</h1><p>解决方向很显然从构建入手。</p>
+<span id="more"></span>
+<ul>
+<li><p>webpack config alias配置vconsole别名</p>
+<pre><code>&#123;
+  ...
+  alias: &#123;
+    vconsole: path.resolve(__dirname, &#39;path/to/vconsole&#39;)
+  &#125;
+&#125;
+</code></pre>
+</li>
+<li><p>另起一个vconsole.js，判断如果是打包环境就暴露出去一个空的function，否则才暴露require(‘vconsole’)</p>
+<pre><code>let VConsole = function() &#123;&#125;
+if (!isProd) &#123;
+  VConsole = require(&#39;vconsole&#39;)
+&#125;
+module.exports = VConsole
+</code></pre>
+</li>
+</ul>
+<blockquote>
+<p>因为全局搜索了vconsole的调用方式，只有 <code>new VConsole()</code> 这种调用方式，所以没有对构造函数做进一步拓展。</p>
+</blockquote>
+<ul>
+<li>这样修改过构建之后，就可以大胆的调用，条件满足线上，就不会再显示VConsole，也会从打包中被排除。</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ul>
+<li>每一个需要手动操作的过程，都应该思考是否能被自动化掉。</li>
+<li>ios调试使用 <a href="https://www.jianshu.com/p/5b2305929041">Mac+Safari</a>，安卓尝试过 <a href="https://www.mobiledebug.com/">Mobile Debug</a> 体验会比vconsole舒服。</li>
+</ul>
+
+      </div>
+      
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2020/05/05/webpack-inline-plugin/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">webpack 文件内联</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2019/02/07/vue-ssr/">
+        <span class="next-text nav-default">ssr-内部分享</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2023<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">佘炜帆</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v="></script>
+</body>
+</html>
