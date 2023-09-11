@@ -7,10 +7,12 @@ date: 2023-08-24
 * "webpack": "^1.13.2", "element-ui": "^1.4.11",
 * n年前的项目
 * 超过200个路由无法升级
+* v1部分功能老旧，希望在需要的时候可以使用v2的功能
 
 
 # 代码实现
 * compatibleElementV2.js
+
 ```js
 module.exports = function (source) {
   return source.replace(/element-ui\//g, "element-v2/");
@@ -18,6 +20,7 @@ module.exports = function (source) {
 ```
 
 * webpack.config.js
+
 ```js
 module.exports = {
   ...
@@ -42,6 +45,7 @@ module.exports = {
 ```
 
 * package.json
+
 ```json
 {
   ...
@@ -53,7 +57,7 @@ module.exports = {
 }
 ```
 
-* 测试代码
+* 测试代码（官方demo）
 ```vue
 <template>
   <div>
