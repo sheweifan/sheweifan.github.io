@@ -1,0 +1,47 @@
+baseURL = 'https://sheweifan.github.io/'
+defaultContentLanguage = 'zh'
+languageCode = 'zh-CN'
+title = '佘炜帆'
+theme = 'PaperMod'
+
+[params]
+  author = '佘炜帆'
+  description = '叩首问路，码梦为生。'
+  defaultTheme = 'auto'
+  ShowReadingTime = true
+  ShowShareButtons = false
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  # 不在首页显示 homeInfoParams，直接显示文章列表
+  ShowHomeInfo = false
+
+[[params.socialIcons]]
+  name = "github"
+  url = "https://github.com/sheweifan"
+
+[menu]
+  [[menu.main]]
+    name = '首页'
+    url = '/'
+    weight = 10
+  [[menu.main]]
+    name = '文章'
+    url = '/posts/'
+    weight = 20
+  [[menu.main]]
+    name = '归档'
+    url = '/archives/'
+    weight = 30
+
+[permalinks]
+  posts = '/:year/:month/:day/:title/'
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.highlight]
+    style = 'github'
+    lineNos = false
+    codeFences = true
