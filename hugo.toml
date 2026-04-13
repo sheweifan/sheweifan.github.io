@@ -15,6 +15,8 @@ theme = 'PaperMod'
   ShowCodeCopyButtons = true
   # 不在首页显示 homeInfoParams，直接显示文章列表
   ShowHomeInfo = false
+  # 第一个文章不使用特殊样式
+  disableSpecial1stPost = true
 
 [[params.socialIcons]]
   name = "github"

@@ -221,19 +221,20 @@ Spec-kit 生成了大量 markdown 文件，又长又重复。Fowler 说"我宁�
 **维度二：变更复杂度** — 这个改动涉及多少文件、多少模块？
 
 {{< mermaid >}}
-quadrantChart
-    title 什么时候该用什么？
-    x-axis 需求不明确 --> 需求明确
-    y-axis 变更复杂度 低 --> 变更复杂度 高
-    quadrant-1 SDD 最佳场景
-    quadrant-2 混合模式
-    quadrant-3 直接 vibe coding
-    quadrant-4 轻量 SDD
-    "完整流程": [0.85, 0.85]
-    "Spec-First / Spec-Anchored": [0.8, 0.55]
-    "轻量 spec (5-10行)": [0.7, 0.25]
-    "先 vibe 再 SDD": [0.25, 0.75]
-    "直接 vibe": [0.2, 0.2]
+graph LR
+    A[需求明确] --> B{变更复杂度}
+    B -->|高| C[SDD 最佳场景]
+    B -->|低| D[轻量 SDD]
+    
+    E[需求不明确] --> F{变更复杂度}
+    F -->|高| G[混合模式]
+    F -->|低| H[直接 vibe coding]
+    
+    C --> C1[Spec-First]
+    C --> C2[Spec-Anchored]
+    D --> D1[轻量 spec]
+    G --> G1[先 vibe 再 SDD]
+    H --> H1[直接 vibe]
 {{< /mermaid >}}
 
 **右上角（需求明确 + 高复杂度）：** SDD 的最佳场景。需求已经想清楚了，变更又涉及多个模块，写 spec 的投资回报率最高。用 Spec-First 或 Spec-Anchored。
