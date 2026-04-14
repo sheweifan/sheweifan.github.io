@@ -44,6 +44,7 @@ theme = 'PaperMod'
     [markup.goldmark.renderer]
       unsafe = true
   [markup.highlight]
-    style = 'github'
+    style = 'monokai'
     lineNos = false
     codeFences = true
+    noClasses = false
